@@ -332,7 +332,7 @@ void CEMC_Cells()
   return;
 }
 
-void CEMC_Towers()
+void CEMC_Towers(int adcZSThresh = 16)
 {
   int verbosity = std::max(Enable::VERBOSITY, Enable::CEMC_VERBOSITY);
 
@@ -375,7 +375,7 @@ void CEMC_Towers()
   TowerDigitizer->set_pedstal_width_ADC(8);  // eRD1 test beam setting
   TowerDigitizer->set_photonelec_ADC(1);     //not simulating ADC discretization error
   TowerDigitizer->set_photonelec_yield_visible_GeV(photoelectron_per_GeV / sampling_fraction);
-  TowerDigitizer->set_zero_suppression_ADC(16);  // eRD1 test beam setting
+  TowerDigitizer->set_zero_suppression_ADC(adcZSThresh);  // eRD1 test beam setting
   se->registerSubsystem(TowerDigitizer);
 
   if (G4CEMC::Cemc_spacal_configuration == PHG4CylinderGeom_Spacalv1::k1DProjectiveSpacal)

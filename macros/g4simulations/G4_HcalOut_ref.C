@@ -144,7 +144,7 @@ void HCALOuter_Cells()
   return;
 }
 
-void HCALOuter_Towers()
+void HCALOuter_Towers(int adcZSThresh = -0)
 {
   int verbosity = std::max(Enable::VERBOSITY,Enable::HCALOUT_VERBOSITY);
 
@@ -165,7 +165,7 @@ void HCALOuter_Towers()
   TowerDigitizer->set_pedstal_width_ADC(1);  // From Jin's guess. No EMCal High Gain data yet! TODO: update
   TowerDigitizer->set_photonelec_ADC(16. / 5.);
   TowerDigitizer->set_photonelec_yield_visible_GeV(16. / 5 / (0.2e-3));
-  TowerDigitizer->set_zero_suppression_ADC(-0);  // no-zero suppression
+  TowerDigitizer->set_zero_suppression_ADC(adcZSThresh);  // no-zero suppression
   se->registerSubsystem(TowerDigitizer);
 
   const double visible_sample_fraction_HCALOUT = 3.38021e-02;  // /gpfs/mnt/gpfs04/sphenix/user/jinhuang/prod_analysis/hadron_shower_res_nightly/./G4Hits_sPHENIX_pi-_eta0_16GeV.root_qa.rootQA_Draw_HCALOUT_G4Hit.pdf

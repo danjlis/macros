@@ -153,7 +153,7 @@ int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENI
   bool do_HIjetreco = false && do_cemc_twr && do_hcalin_twr && do_hcalout_twr;
 
   // 3-D topoCluster reconstruction, potentially in all calorimeter layers
-  bool do_topoCluster = false && do_cemc_twr && do_hcalin_twr && do_hcalout_twr;
+  bool do_topoCluster = true && do_cemc_twr && do_hcalin_twr && do_hcalout_twr;
   // particle flow jet reconstruction - needs topoClusters!
   bool do_particle_flow = false && do_topoCluster;
 

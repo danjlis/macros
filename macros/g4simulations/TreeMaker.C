@@ -17,6 +17,8 @@
 #include <coresoftware/offline/framework/phool/PHCompositeNode.h>
 #include <coresoftware/offline/packages/CaloBase/RawTower.h>
 #include <coresoftware/offline/packages/CaloBase/RawTowerGeom.h>
+#include <coresoftware/offline/packages/CaloBase/RawClusterContainer.h>
+
 #include <coresoftware/simulation/g4simulation/g4main/PHG4Particle.h>
 #include <coresoftware/simulation/g4simulation/g4main/PHG4TruthInfoContainer.h>
 
@@ -50,6 +52,36 @@ int TreeMaker::Init(PHCompositeNode *topNode)
   _tree->Branch("tower_calib_eta",_b_tower_calib_eta, "tower_calib_eta[tower_calib_n]/F");
   _tree->Branch("tower_calib_phi",_b_tower_calib_phi, "tower_calib_phi[tower_calib_n]/F");
 
+  _tree->Branch("cluster_n", &_b_cluster_n, "cluster_n/I");
+  _tree->Branch("cluster_E", _b_cluster_E, "cluster_E[cluster_n]/F");
+  _tree->Branch("cluster_eta", _b_cluster_eta, "cluster_eta[cluster_n]/F");
+  _tree->Branch("cluster_phi", _b_cluster_phi, "cluster_phi[cluster_n]/F");
+
+  _tree->Branch("cluster_ntower", _b_cluster_ntower, "cluster_ntower[cluster_n]/I");
+  _tree->Branch("cluster_tower_phi", &_b_cluster_tower_phi);
+  _tree->Branch("cluster_tower_eta", &_b_cluster_tower_eta);
+
+  _tree->Branch("clusterT_n", &_b_clusterT_n, "clusterT_n/I");
+  _tree->Branch("clusterT_E", _b_clusterT_E, "clusterT_E[clusterT_n]/F");
+  _tree->Branch("clusterT_eta", _b_clusterT_eta, "clusterT_eta[clusterT_n]/F");
+  _tree->Branch("clusterT_phi", _b_clusterT_phi, "clusterT_phi[clusterT_n]/F");
+
+  _tree->Branch("clusterT_ntower", _b_clusterT_ntower, "clusterT_ntower[clusterT_n]/I");
+  _tree->Branch("clusterT_tower_phi", &_b_clusterT_tower_phi);
+  _tree->Branch("clusterT_tower_eta", &_b_clusterT_tower_eta);
+  _tree->Branch("clusterT_tower_layer", &_b_clusterT_tower_layer);
+
+  _tree->Branch("clusterT2_n", &_b_clusterT2_n, "clusterT2_n/I");
+  _tree->Branch("clusterT2_E", _b_clusterT2_E, "clusterT2_E[clusterT2_n]/F");
+  _tree->Branch("clusterT2_eta", _b_clusterT2_eta, "clusterT2_eta[clusterT2_n]/F");
+  _tree->Branch("clusterT2_phi", _b_clusterT2_phi, "clusterT2_phi[clusterT2_n]/F");
+
+  _tree->Branch("clusterT2_ntower", _b_clusterT2_ntower, "clusterT2_ntower[clusterT2_n]/I");
+  _tree->Branch("clusterT2_tower_phi", &_b_clusterT2_tower_phi);
+  _tree->Branch("clusterT2_tower_eta", &_b_clusterT2_tower_eta);
+  _tree->Branch("clusterT2_tower_layer", &_b_clusterT2_tower_layer);
+
+
   _tree->Branch("part_n",&_b_part_n, "part_n/I");
   _tree->Branch("part_pt",_b_part_pt, "part_pt[part_n]/F");
   _tree->Branch("part_eta",_b_part_eta, "part_eta[part_n]/F");
@@ -62,6 +94,20 @@ int TreeMaker::Init(PHCompositeNode *topNode)
 
 int TreeMaker::process_event(PHCompositeNode *topNode)
 {
+  //Clear all vectors
+
+  _b_cluster_tower_phi.clear();
+  _b_cluster_tower_eta.clear();
+  _b_cluster_tower_layer.clear();
+
+  _b_clusterT_tower_phi.clear();
+  _b_clusterT_tower_eta.clear();
+  _b_clusterT_tower_layer.clear();
+
+  _b_clusterT2_tower_phi.clear();
+  _b_clusterT2_tower_eta.clear();
+  _b_clusterT2_tower_layer.clear();
+
   std::cout << "DVP TreeMaker : at process_event, tree size is: " << _tree->GetEntries() << std::endl;
 
   //std::cout << "FILE, LINE: " << __FILE__ << ", " << __LINE__ << std::endl;
@@ -82,11 +128,21 @@ int TreeMaker::process_event(PHCompositeNode *topNode)
   RawTowerGeomContainer *geomIH = findNode::getClass<RawTowerGeomContainer>(topNode, "TOWERGEOM_HCALIN");
   RawTowerGeomContainer *geomOH = findNode::getClass<RawTowerGeomContainer>(topNode, "TOWERGEOM_HCALOUT");
 
+  RawClusterContainer *clustersEM = findNode::getClass<RawClusterContainer>(topNode, "CLUSTER_CEMC");
+  RawClusterContainer *clustersT = findNode::getClass<RawClusterContainer>(topNode, "TOPOCLUSTER_EMCAL");
+  RawClusterContainer *clustersT2 = findNode::getClass<RawClusterContainer>(topNode, "TOPOCLUSTER_ALLCALO");
+
+
   //std::cout << "FILE, LINE: " << __FILE__ << ", " << __LINE__ << std::endl;
 
   _b_tower_sim_n = 0;
   _b_tower_raw_n = 0;
   _b_tower_calib_n = 0;
+
+  //Zero the clusters
+  _b_cluster_n = 0;
+  _b_clusterT_n = 0;
+  _b_clusterT2_n = 0;
 
   //std::cout << "FILE, LINE: " << __FILE__ << ", " << __LINE__ << std::endl;
 
@@ -106,7 +162,10 @@ int TreeMaker::process_event(PHCompositeNode *topNode)
   processTowersCalib(towersCalibIH4, geomIH, 4);
   processTowersCalib(towersCalibOH4, geomOH, 5);
 
-  //std::cout << "FILE, LINE: " << __FILE__ << ", " << __LINE__ << std::endl;
+  
+  processClusters(clustersEM, towersCalibEM4, towersCalibIH4, towersCalibOH4, geomCEMC, geomIH, geomOH, &_b_cluster_n, _b_cluster_eta, _b_cluster_phi, _b_cluster_E, _b_cluster_ntower, &_b_clusterT_tower_phi, &_b_clusterT_tower_eta, &_b_clusterT_tower_layer);
+  processClusters(clustersT, towersCalibEM4, towersCalibIH4, towersCalibOH4, geomCEMC, geomIH, geomOH, &_b_clusterT_n, _b_clusterT_eta, _b_clusterT_phi, _b_clusterT_E, _b_clusterT_ntower, &_b_clusterT_tower_phi, &_b_clusterT_tower_eta, &_b_clusterT_tower_layer);
+  processClusters(clustersT2, towersCalibEM4, towersCalibIH4, towersCalibOH4, geomCEMC, geomIH, geomOH, &_b_clusterT2_n, _b_clusterT2_eta, _b_clusterT2_phi, _b_clusterT2_E, _b_clusterT2_ntower, &_b_clusterT2_tower_phi, &_b_clusterT2_tower_eta, &_b_clusterT2_tower_layer);  
 
   _b_part_n = 0;
 
@@ -202,6 +261,63 @@ void TreeMaker::processTowersCalib(RawTowerContainer* towers, RawTowerGeomContai
       std::cout << __FILE__ << " ERROR: _b_tower_calib_n has hit cap of " << nTowers << "!!!" << std::endl;
     }
   }  
+
+  return;
+}
+
+//Really this should just be a class but I leave that to others
+void TreeMaker::processClusters(RawClusterContainer* clusters, RawTowerContainer* towersEM, RawTowerContainer* towersIH, RawTowerContainer* towersOH, RawTowerGeomContainer* geomEM, RawTowerGeomContainer* geomIH, RawTowerGeomContainer* geomOH, int* n, float* eta, float* phi, float* E, int* ntow, std::vector<std::vector<float> >* towphi, std::vector<std::vector<float> >* toweta, std::vector<std::vector<int> >* towlayer)
+{
+  (*n) = 0;
+
+  RawClusterContainer::ConstIterator hiter;
+  RawClusterContainer::ConstRange begin_end = clusters->getClusters();
+  for(hiter = begin_end.first; hiter != begin_end.second; ++hiter){
+    float theta = 3.14159/2.0 - TMath::ATan2(hiter->second->get_z(), hiter->second->get_r());
+    float tempEta = -1.0*log(tan(theta/2.0));
+
+    if(hiter->second->get_energy() < 0.1) continue; //make a safe minumum cut on cluster energy
+
+    eta[*n] = tempEta;
+    phi[*n] = hiter->second->get_phi();
+    E[*n] = hiter->second->get_energy();
+    ntow[*n] =  hiter->second->getNTowers();
+
+    towphi->push_back({});
+    toweta->push_back({});
+    towlayer->push_back({});
+
+    RawCluster::TowerConstRange begin_end = hiter->second->get_towers();
+    for(RawCluster::TowerConstIterator iter = begin_end.first; iter != begin_end.second; ++iter){
+      RawTower* tower;
+      RawTowerGeom *tower_geom;
+
+      if(RawTowerDefs::decode_caloid(iter->first) == RawTowerDefs::CalorimeterId::CEMC){
+	tower = towersEM->getTower(iter->first);
+	tower_geom = geomEM->get_tower_geometry(tower->get_key());
+	towlayer->at(towlayer->size()-1).push_back(3);
+	towphi->at(towphi->size()-1).push_back(tower_geom->get_phi());
+	toweta->at(toweta->size()-1).push_back(tower_geom->get_eta());
+      }
+      else if(RawTowerDefs::decode_caloid(iter->first) == RawTowerDefs::CalorimeterId::HCALIN){
+	tower = towersIH->getTower(iter->first);
+	tower_geom = geomIH->get_tower_geometry(tower->get_key());
+	towlayer->at(towlayer->size()-1).push_back(4);
+	towphi->at(towphi->size()-1).push_back(tower_geom->get_phi());
+	toweta->at(toweta->size()-1).push_back(tower_geom->get_eta());
+      }
+      else if(RawTowerDefs::decode_caloid(iter->first) == RawTowerDefs::CalorimeterId::HCALOUT){
+	tower = towersOH->getTower(iter->first);
+	tower_geom = geomOH->get_tower_geometry(tower->get_key());
+	towlayer->at(towlayer->size()-1).push_back(5);
+	towphi->at(towphi->size()-1).push_back(tower_geom->get_phi());
+	toweta->at(toweta->size()-1).push_back(tower_geom->get_eta());
+      }      
+    }
+    
+    ++(*n);
+  }
+
 
   return;
 }

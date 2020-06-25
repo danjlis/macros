@@ -7,4 +7,4 @@ mkdir -p logs/$DATE
 
 #root -l -b "Fun4All_G4_sPHENIX.C(10, \"zsOff_NOM.root\", -100, -100, -100)" >& logs/$DATE/zsOff_$DATE.log &
 
-root -l -b "Fun4All_G4_sPHENIX.C(10, \"zsOn_NOM.root\", 16, 16, 16)" >& logs/$DATE/zsOn_$DATE.log &
+root -l -b "Fun4All_G4_sPHENIX.C(\"inputs/treeMaker_TEST.config\")" >& logs/$DATE/zsOn_$DATE.log &

@@ -34,8 +34,11 @@
 #include <string>
 
 #include "TreeMaker.C"
+
 #include "TDatime.h"
+#include "TEnv.h"
 #include "TLorentzVector.h"
+#include "TRandom3.h"
 
 R__LOAD_LIBRARY(libTreeMaker.so)
 
@@ -49,7 +52,19 @@ R__LOAD_LIBRARY(libPHPythia8.so)
 using namespace std;
 
 
-int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENIX.root", const int zsADCThreshCEMC = 16, const int zsADCThreshIHCal = -0, const int zsADCThreshOHCal = -0, const double etaVal = 0.0125, const double phiVal = 0.0){
+int Fun4All_G4_sPHENIX(std::string inConfigFileName)
+{
+  TEnv* config_p = new TEnv(inConfigFileName.c_str());
+
+  const int nEvents = config_p->GetValue("NEVENTS", 1);
+  const std::string outFileName = config_p->GetValue("OUTFILENAME", "G4sPHENIX.root");
+  const int zsADCThreshCEMC = config_p->GetValue("ZSADCTHRESHCEMC", 16);
+  const int zsADCThreshIHCal = config_p->GetValue("ZSADCTHRESHIHCAL", 0);
+  const int zsADCThreshOHCal = config_p->GetValue("ZSADCTHRESHOHCAL", 0);
+  const bool doGun = config_p->GetValue("DOGUN", 0);
+  const double etaVal = config_p->GetValue("GUNETAVAL", 0.0);
+  const double phiVal = config_p->GetValue("GUNPHIVAL", 0.0);
+  const std::string gunParticle = config_p->GetValue("GUNPARTICLE", "proton");
 
   //===============
   // Input options
@@ -81,7 +96,7 @@ int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENI
   // Use multi-particle generator (PHG4SimpleEventGenerator), see the code block below to choose particle species and kinematics
   const bool particles = false && !readhits;
   // or gun/ very simple single particle gun generator
-  const bool usegun = true && !readhits;
+  const bool usegun = doGun && !readhits;
   // Throw single Upsilons, may be embedded in Hijing by setting readhepmc flag also  (note, careful to set Z vertex equal to Hijing events)
   const bool upsilons = false && !readhits;
   const int num_upsilons_per_event = 1;  // can set more than 1 upsilon per event, each has a unique embed flag
@@ -291,13 +306,32 @@ int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENI
 
     if (usegun)
     {
+      double mass = 0.0;
+      if(gunParticle.find("proton") != std::string::npos){
+	mass = 0.9382720813;
+      }
+      else if(gunParticle.find("photon") != std::string::npos){
+
+      }
+      else{
+	std::cout << "Requested particle \'" << gunParticle << "\' not yet encoded. return 1" << std::endl;
+	return 1;
+      }
+
+
       PHG4ParticleGun *gun = new PHG4ParticleGun();
       //  gun->set_name("anti_proton");
       TLorentzVector tL;
-      tL.SetPtEtaPhiM(10.0/std::cosh(etaVal), etaVal, phiVal, 0.9382720813);
-      gun->set_name("proton");
-      gun->set_vtx(0, 0, 0);
-      gun->set_mom(tL.Px(), tL.Py(), tL.P());
+      tL.SetPtEtaPhiM(10.0/std::cosh(etaVal), etaVal, phiVal, mass);
+      gun->set_name(gunParticle.c_str());
+      gun->set_mom(tL.Px(), tL.Py(), tL.Pz());
+
+      TRandom3* randGen_p = new TRandom3(0);
+      //Based on distributions at the bottom here:
+      //https://cds.cern.ch/record/1704291/plots
+      gun->set_vtx(randGen_p->Gaus(0.0, 0.0025), randGen_p->Gaus(0.0, 0.0025), randGen_p->Gaus(0.0, 5.5));
+      delete randGen_p;
+
       // gun->AddParticle("geantino",1.7776,-0.4335,0.);
       // gun->AddParticle("geantino",1.7709,-0.4598,0.);
       // gun->AddParticle("geantino",2.5621,0.60964,0.);
@@ -490,17 +524,17 @@ int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENI
   // Simulation evaluation
   //----------------------
 
-  if (do_tracking_eval) Tracking_Eval(string(outputFile) + "_g4svtx_eval.root");
+  if (do_tracking_eval) Tracking_Eval(string(outFileName) + "_g4svtx_eval.root");
 
-  if (do_cemc_eval) CEMC_Eval(string(outputFile) + "_g4cemc_eval.root");
+  if (do_cemc_eval) CEMC_Eval(string(outFileName) + "_g4cemc_eval.root");
 
-  if (do_hcalin_eval) HCALInner_Eval(string(outputFile) + "_g4hcalin_eval.root");
+  if (do_hcalin_eval) HCALInner_Eval(string(outFileName) + "_g4hcalin_eval.root");
 
-  if (do_hcalout_eval) HCALOuter_Eval(string(outputFile) + "_g4hcalout_eval.root");
+  if (do_hcalout_eval) HCALOuter_Eval(string(outFileName) + "_g4hcalout_eval.root");
 
-  if (do_femc_eval) FEMC_Eval(string(outputFile) + "_g4femc_eval.root");
+  if (do_femc_eval) FEMC_Eval(string(outFileName) + "_g4femc_eval.root");
 
-  if (do_jet_eval) Jet_Eval(string(outputFile) + "_g4jet_eval.root");
+  if (do_jet_eval) Jet_Eval(string(outFileName) + "_g4jet_eval.root");
 
   //--------------
   // IO management
@@ -598,7 +632,7 @@ int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENI
     //Convert DST to human command readable TTree for quick poke around the outputs
     gROOT->LoadMacro("G4_DSTReader.C");
 
-    G4DSTreader(outputFile,  //
+    G4DSTreader(outFileName.c_str(),  //
                 /*int*/ absorberactive,
                 /*bool*/ do_tracking,
                 /*bool*/ do_pstof,
@@ -615,18 +649,26 @@ int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENI
   const std::string dateStr = std::to_string(date->GetDate());
   delete date;
 
-  std::string outputFileAB = outputFile;
-  if(outputFileAB.find(".") != std::string::npos) outputFileAB = outputFileAB.substr(0, outputFileAB.find("."));
-  outputFileAB = outputFileAB + "_CEMCADCThresh" + std::to_string(zsADCThreshCEMC) + "_IHCalADCThresh" + std::to_string((int)zsADCThreshIHCal) + "_OHCalADCThresh" + std::to_string((int)zsADCThreshOHCal) + "_AfterBurner_" + dateStr + ".root";
+  std::string outFileNameAB = outFileName;
+  if(outFileNameAB.find(".") != std::string::npos) outFileNameAB = outFileNameAB.substr(0, outFileNameAB.find("."));
+  outFileNameAB = outFileNameAB + "_CEMCADCThresh" + std::to_string(zsADCThreshCEMC) + "_IHCalADCThresh" + std::to_string((int)zsADCThreshIHCal) + "_OHCalADCThresh" + std::to_string((int)zsADCThreshOHCal) + "_AfterBurner_" + dateStr + ".root";
 
-  TreeMaker *tt = new TreeMaker( outputFileAB );
+  TreeMaker *tt = new TreeMaker( outFileNameAB );
   tt->SetVerbosity( 1 );
+
+  THashList* hash_p = (THashList*)config_p->GetTable();
+  std::cout << "FINAL CONFIGURATION: " << std::endl;
+  for(Int_t entry = 0; entry < hash_p->GetEntries(); ++entry){
+    std::cout << " CONFIG " << entry << ": \'" << hash_p->At(entry)->GetName() << "\', \'" << config_p->GetValue(hash_p->At(entry)->GetName(), "") << "\'." << std::endl;
+
+    tt->m_config.SetValue(hash_p->At(entry)->GetName(), config_p->GetValue(hash_p->At(entry)->GetName(), ""));
+  }
   se->registerSubsystem( tt );
 
 
 
   if(do_write_output) {
-    Fun4AllDstOutputManager *out = new Fun4AllDstOutputManager("DSTOUT", outputFile);
+    Fun4AllDstOutputManager *out = new Fun4AllDstOutputManager("DSTOUT", outFileName);
     if (do_dst_compress) DstCompress(out);
     se->registerOutputManager(out);
   }
@@ -665,6 +707,9 @@ int Fun4All_G4_sPHENIX(const int nEvents = 1, const char *outputFile = "G4sPHENI
   std::cout << "All done" << std::endl;
   delete se;
   gSystem->Exit(0);
+
+  delete config_p;
+
   return 0;
 }
 

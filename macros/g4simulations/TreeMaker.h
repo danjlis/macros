@@ -8,6 +8,7 @@
 #include <vector>
 
 //ROOT
+#include "TEnv.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -35,6 +36,8 @@ class TreeMaker: public SubsysReco
     _verbosity = verb;
   }
 
+  TEnv m_config;  
+
  private:
 
   int _verbosity;
@@ -44,6 +47,10 @@ class TreeMaker: public SubsysReco
   TTree *_tree;
 
   std::string _foutname;
+
+  float _b_truth_vx;
+  float _b_truth_vy;
+  float _b_truth_vz;
 
   static const int nTowers = 100000;
   int _b_tower_sim_n;

@@ -32,7 +32,14 @@ int TreeMaker::Init(PHCompositeNode *topNode)
 {
   _f = new TFile( _foutname.c_str(), "RECREATE");
 
+  _f->cd();
+  m_config.Write("config", TObject::kOverwrite);
+
   _tree = new TTree("aftburnTree","");
+
+  _tree->Branch("truth_vx", &_b_truth_vx, "truth_vx/F");
+  _tree->Branch("truth_vy", &_b_truth_vy, "truth_vy/F");
+  _tree->Branch("truth_vz", &_b_truth_vz, "truth_vz/F");
 
   _tree->Branch("tower_sim_n",&_b_tower_sim_n, "tower_sim_n/I");
   _tree->Branch("tower_sim_layer",_b_tower_sim_layer, "tower_sim_layer[tower_sim_n]/I");
@@ -171,6 +178,12 @@ int TreeMaker::process_event(PHCompositeNode *topNode)
 
   //Lets grab truth info too (Based on macro coresoftware/offline/packages/jetbackground/DetermineTowerBackground as of 2019.08.02
   PHG4TruthInfoContainer *truthinfo = findNode::getClass<PHG4TruthInfoContainer>(topNode, "G4TruthInfo");
+
+  PHG4VtxPoint *point = truthinfo->GetPrimaryVtx(truthinfo->GetPrimaryVertexIndex());
+  _b_truth_vx = point->get_x();
+  _b_truth_vy = point->get_y();
+  _b_truth_vz = point->get_z();
+
   PHG4TruthInfoContainer::Range range = truthinfo->GetPrimaryParticleRange();
   for(PHG4TruthInfoContainer::ConstIterator iter = range.first; iter != range.second; ++iter){
     PHG4Particle *g4particle = iter->second;

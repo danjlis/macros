@@ -13,10 +13,10 @@
 #include "TTree.h"
 
 //CoreSoftwaree
-#include <coresoftware/offline/framework/fun4all/SubsysReco.h>
-#include <coresoftware/offline/packages/CaloBase/RawTowerGeomContainer_Cylinderv1.h>
-#include <coresoftware/offline/packages/CaloBase/RawTowerGeomContainer.h>
-#include <coresoftware/offline/packages/CaloBase/RawTowerContainer.h>     
+#include <fun4all/SubsysReco.h>
+#include <calobase/RawTowerGeomContainer_Cylinderv1.h>
+#include <calobase/RawTowerGeomContainer.h>
+#include <calobase/RawTowerContainer.h>     
 #include <calobase/RawClusterContainer.h>
 
 class PHCompositeNode;

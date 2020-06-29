@@ -12,15 +12,17 @@
 #include "TreeMaker.h"
 
 //CoreSoftware
-#include <coresoftware/offline/framework/fun4all/Fun4AllServer.h>
-#include <coresoftware/offline/framework/phool/getClass.h>
-#include <coresoftware/offline/framework/phool/PHCompositeNode.h>
-#include <coresoftware/offline/packages/CaloBase/RawTower.h>
-#include <coresoftware/offline/packages/CaloBase/RawTowerGeom.h>
-#include <coresoftware/offline/packages/CaloBase/RawClusterContainer.h>
+#include <fun4all/Fun4AllServer.h>
+#include <phool/getClass.h>
+#include <phool/PHCompositeNode.h>
+#include <calobase/RawTower.h>
+#include <calobase/RawTowerGeom.h>
+#include <calobase/RawCluster.h>
+#include <calobase/RawClusterContainer.h>
 
-#include <coresoftware/simulation/g4simulation/g4main/PHG4Particle.h>
-#include <coresoftware/simulation/g4simulation/g4main/PHG4TruthInfoContainer.h>
+#include <g4main/PHG4Particle.h>
+#include <g4main/PHG4TruthInfoContainer.h>
+#include <g4main/PHG4VtxPoint.h>
 
 TreeMaker::TreeMaker(const std::string &name) : SubsysReco("OUTPUT_TREE")
 {

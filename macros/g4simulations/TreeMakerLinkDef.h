@@ -4,6 +4,8 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
-#pragma link C++ defined_in "TreeMaker.h";
+#pragma link C++ class TreeMaker-;
+#pragma link C++ class vector<vector<float> >+;
+#pragma link C++ class vector<vector<int> >+;
 
 #endif

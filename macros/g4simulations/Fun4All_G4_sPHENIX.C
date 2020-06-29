@@ -650,8 +650,8 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
   delete date;
 
   std::string outFileNameAB = outFileName;
-  if(outFileNameAB.find(".") != std::string::npos) outFileNameAB = outFileNameAB.substr(0, outFileNameAB.find("."));
-  outFileNameAB = outFileNameAB + "_CEMCADCThresh" + std::to_string(zsADCThreshCEMC) + "_IHCalADCThresh" + std::to_string((int)zsADCThreshIHCal) + "_OHCalADCThresh" + std::to_string((int)zsADCThreshOHCal) + "_AfterBurner_" + dateStr + ".root";
+  if(outFileNameAB.find(".") != std::string::npos) outFileNameAB = outFileNameAB.substr(0, outFileNameAB.rfind("."));
+  outFileNameAB = outFileNameAB + "_TreeMaker_" + dateStr + ".root";
 
   TreeMaker *tt = new TreeMaker( outFileNameAB );
   tt->SetVerbosity( 1 );

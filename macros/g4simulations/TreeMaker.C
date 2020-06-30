@@ -69,6 +69,7 @@ int TreeMaker::Init(PHCompositeNode *topNode)
   _tree->Branch("cluster_ntower", _b_cluster_ntower, "cluster_ntower[cluster_n]/I");
   _tree->Branch("cluster_tower_phi", &_b_cluster_tower_phi);
   _tree->Branch("cluster_tower_eta", &_b_cluster_tower_eta);
+  _tree->Branch("cluster_tower_layer", &_b_cluster_tower_layer);
 
   _tree->Branch("clusterT_n", &_b_clusterT_n, "clusterT_n/I");
   _tree->Branch("clusterT_E", _b_clusterT_E, "clusterT_E[clusterT_n]/F");

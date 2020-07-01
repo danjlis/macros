@@ -58,8 +58,8 @@ PHIVAL=$(printf %.3f "$((10**3 * $PHIVAL/10000000))e-3")
 
 cp treeMaker_CONDORTEMPLATE.config treeMaker_Job$id.config
 #
-sed -i -e "s@INETAVAL@$ETAVAL./100000000@g" treeMaker_Job$id.config
-sed -i -e "s@INPHIVAL@$PHIVAL./10000000@g" treeMaker_Job$id.config
+sed -i -e "s@INETAVAL@$ETAVAL@g" treeMaker_Job$id.config
+sed -i -e "s@INPHIVAL@$PHIVAL@g" treeMaker_Job$id.config
 sed -i -e "s@INCEMCZS@$ZSEMCal@g" treeMaker_Job$id.config
 sed -i -e "s@INIHCALZS@$ZSIHCal@g" treeMaker_Job$id.config
 sed -i -e "s@INOHCALZS@$ZSOHCal@g" treeMaker_Job$id.config

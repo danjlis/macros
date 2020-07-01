@@ -184,12 +184,15 @@ int TreeMaker::process_event(PHCompositeNode *topNode)
 
   PHG4VtxPoint *point = nullptr;
   if(truthinfo->GetPrimaryVertexIndex() > 0){
-    std::cout << "FILE, LINE: " << __FILE__ << ", " << __LINE__ << std::endl;
-    std::cout << truthinfo->GetPrimaryVertexIndex() << std::endl;
     point = truthinfo->GetPrimaryVtx(truthinfo->GetPrimaryVertexIndex());
     _b_truth_vx = point->get_x();
     _b_truth_vy = point->get_y();
     _b_truth_vz = point->get_z();
+  }
+  else{
+    _b_truth_vx = -999.;
+    _b_truth_vy = -999.;
+    _b_truth_vz = -999.;
   }
 
   PHG4TruthInfoContainer::Range range = truthinfo->GetPrimaryParticleRange();

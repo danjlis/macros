@@ -7,11 +7,10 @@ then
 fi
 
 source /opt/sphenix/core/bin/sphenix_setup.sh -n
-export SPHENIX=/sphenix/user/cmcginn/Projects/sPHENIX4/
+export SPHENIX=/sphenix/user/cmcginn/Projects/sPHENIX5/
 export MYINSTALL="$SPHENIX"install
 
 source /opt/sphenix/core/bin/setup_local.sh $MYINSTALL
-
 tar -xzvf inTar.tar.gz
 
 #if [[ -f $MYINSTALL/lib/libTreeMaker.so ]]
@@ -53,15 +52,21 @@ ZSIHCal=0
 ZSOHCal=0
 
 #Lets modify the TEMPLATE FILE:
-cp treeMaker_CONDORTEMPLATE.config treeMaker_Job$id.config
 
+ETAVAL=$(printf %.3f "$((10**3 * $ETAVAL/100000000))e-3")
+PHIVAL=$(printf %.3f "$((10**3 * $PHIVAL/10000000))e-3")
+
+cp treeMaker_CONDORTEMPLATE.config treeMaker_Job$id.config
+#
 sed -i -e "s@INETAVAL@$ETAVAL./100000000@g" treeMaker_Job$id.config
 sed -i -e "s@INPHIVAL@$PHIVAL./10000000@g" treeMaker_Job$id.config
 sed -i -e "s@INCEMCZS@$ZSEMCal@g" treeMaker_Job$id.config
 sed -i -e "s@INIHCALZS@$ZSIHCal@g" treeMaker_Job$id.config
 sed -i -e "s@INOHCALZS@$ZSOHCal@g" treeMaker_Job$id.config
 
+sed -i -e "s@G4sPHENIX.root@G4sPHENIX_Job$id.root@g" treeMaker_Job$id.config
 
-echo root -l -b -q "Fun4All_G4_sPHENIX.C(\"treeMaker_Job$id.config\")" #>& zs_$id.log
-
+#
+root -l -b -q "Fun4All_G4_sPHENIX.C(\"treeMaker_Job0.config\")" >& zs_$id.log
+#
 echo "JOB COMPLETE!"

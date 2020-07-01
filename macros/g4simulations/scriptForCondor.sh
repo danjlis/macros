@@ -7,7 +7,15 @@ then
 fi
 
 source /opt/sphenix/core/bin/sphenix_setup.sh -n
-export SPHENIX=/sphenix/user/cmcginn/Projects/sPHENIX5/
+export SPHENIX=YOURPATHHERE 
+if [[ $SPHENIX == "YOURPATHHERE" ]]
+then
+    echo "YOU NEED TO EDIT scriptForCondor.sh path SPHENIX - currently set xsto YOURPATHHERE"
+
+    return
+    exit 1
+fi
+
 export MYINSTALL="$SPHENIX"install
 
 source /opt/sphenix/core/bin/setup_local.sh $MYINSTALL

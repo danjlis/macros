@@ -182,10 +182,15 @@ int TreeMaker::process_event(PHCompositeNode *topNode)
   //Lets grab truth info too (Based on macro coresoftware/offline/packages/jetbackground/DetermineTowerBackground as of 2019.08.02
   PHG4TruthInfoContainer *truthinfo = findNode::getClass<PHG4TruthInfoContainer>(topNode, "G4TruthInfo");
 
-  PHG4VtxPoint *point = truthinfo->GetPrimaryVtx(truthinfo->GetPrimaryVertexIndex());
-  _b_truth_vx = point->get_x();
-  _b_truth_vy = point->get_y();
-  _b_truth_vz = point->get_z();
+  PHG4VtxPoint *point = nullptr;
+  if(truthinfo->GetPrimaryVertexIndex() > 0){
+    std::cout << "FILE, LINE: " << __FILE__ << ", " << __LINE__ << std::endl;
+    std::cout << truthinfo->GetPrimaryVertexIndex() << std::endl;
+    point = truthinfo->GetPrimaryVtx(truthinfo->GetPrimaryVertexIndex());
+    _b_truth_vx = point->get_x();
+    _b_truth_vy = point->get_y();
+    _b_truth_vz = point->get_z();
+  }
 
   PHG4TruthInfoContainer::Range range = truthinfo->GetPrimaryParticleRange();
   for(PHG4TruthInfoContainer::ConstIterator iter = range.first; iter != range.second; ++iter){

@@ -67,6 +67,7 @@ sed -i -e "s@INOHCALZS@$ZSOHCal@g" treeMaker_Job$id.config
 sed -i -e "s@G4sPHENIX.root@G4sPHENIX_Job$id.root@g" treeMaker_Job$id.config
 
 #
-root -l -b -q "Fun4All_G4_sPHENIX.C(\"treeMaker_Job0.config\")" >& zs_$id.log
+ls
+root -l -b -q "Fun4All_G4_sPHENIX.C(\"treeMaker_Job$id.config\")" >& zs_$id.log
 #
 echo "JOB COMPLETE!"

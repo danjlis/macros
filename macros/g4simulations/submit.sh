@@ -47,7 +47,7 @@ rm -f autogen.sh
 cd $retDir
 
 echo "transfer_input_files = inTar.tar.gz,scriptForCondor.sh" >> $cFile2
-echo "Queue 1088" >> $cFile2
+echo "Queue 10" >> $cFile2
 
 mv $cFile2 $cDir
 cp scriptForCondor.sh $cDir

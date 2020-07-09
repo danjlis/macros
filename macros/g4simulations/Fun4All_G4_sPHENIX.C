@@ -64,7 +64,7 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
   const bool doGun = config_p->GetValue("DOGUN", 0);
   const double etaVal = config_p->GetValue("GUNETAVAL", 0.0);
   const double phiVal = config_p->GetValue("GUNPHIVAL", 0.0);
-  const std::string gunParticle = config_p->GetValue("GUNPARTICLE", "proton");
+  std::string gunParticle = config_p->GetValue("GUNPARTICLE", "proton");
 
   //===============
   // Input options
@@ -311,7 +311,11 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
 	mass = 0.9382720813;
       }
       else if(gunParticle.find("photon") != std::string::npos){
-
+	gunParticle = "gamma";
+	mass = 0.0;
+      }
+      else if(gunParticle.find("gamma") != std::string::npos){
+	mass = 0.0;
       }
       else{
 	std::cout << "Requested particle \'" << gunParticle << "\' not yet encoded. return 1" << std::endl;

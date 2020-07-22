@@ -1,5 +1,6 @@
 //Inner HCal reconstruction macro
-#pragma once
+#ifndef MACRO_G4HCALINREF_C
+#define MACRO_G4HCALINREF_C
 
 #include "GlobalVariables.C"
 
@@ -25,8 +26,7 @@ R__LOAD_LIBRARY(libg4calo.so)
 R__LOAD_LIBRARY(libg4detectors.so)
 R__LOAD_LIBRARY(libg4eval.so)
 
-void HCalInner_SupportRing(PHG4Reco *g4Reco,
-                           const int absorberactive = 0);
+void HCalInner_SupportRing(PHG4Reco *g4Reco);
 
 namespace Enable
 {
@@ -80,10 +80,9 @@ void HCalInnerInit(const int iflag = 0)
 
 double HCalInner(PHG4Reco *g4Reco,
                  double radius,
-                 const int crossings,
-                 const int absorberactive = 0)
+                 const int crossings)
 {
-  bool AbsorberActive = Enable::ABSORBER || Enable::HCALIN_ABSORBER || absorberactive;
+  bool AbsorberActive = Enable::ABSORBER || Enable::HCALIN_ABSORBER;
   bool OverlapCheck = Enable::OVERLAPCHECK || Enable::HCALIN_OVERLAPCHECK;
   int verbosity = std::max(Enable::VERBOSITY, Enable::HCALIN_VERBOSITY);
 
@@ -153,17 +152,16 @@ double HCalInner(PHG4Reco *g4Reco,
 
   radius = hcal->get_double_param("outer_radius");
 
-  HCalInner_SupportRing(g4Reco, absorberactive);
+  HCalInner_SupportRing(g4Reco);
 
   radius += no_overlapp;
   return radius;
 }
 
 //! A rough version of the inner HCal support ring, from Richie's CAD drawing. - Jin
-void HCalInner_SupportRing(PHG4Reco *g4Reco,
-                           const int absorberactive = 0)
+void HCalInner_SupportRing(PHG4Reco *g4Reco)
 {
-  bool AbsorberActive = Enable::ABSORBER || Enable::HCALIN_ABSORBER || absorberactive;
+  bool AbsorberActive = Enable::ABSORBER || Enable::HCALIN_ABSORBER;
 
   const double z_ring1 = (2025 + 2050) / 2. / 10.;
   const double innerradius_sphenix = 116.;
@@ -220,7 +218,7 @@ void HCALInner_Cells()
   return;
 }
 
-void HCALInner_Towers(int adcZSThresh = -0)
+void HCALInner_Towers()
 {
   int verbosity = std::max(Enable::VERBOSITY, Enable::HCALIN_VERBOSITY);
   Fun4AllServer *se = Fun4AllServer::instance();
@@ -240,7 +238,7 @@ void HCALInner_Towers(int adcZSThresh = -0)
   TowerDigitizer->set_pedstal_width_ADC(1);  // From Jin's guess. No EMCal High Gain data yet! TODO: update
   TowerDigitizer->set_photonelec_ADC(32. / 5.);
   TowerDigitizer->set_photonelec_yield_visible_GeV(32. / 5 / (0.4e-3));
-  TowerDigitizer->set_zero_suppression_ADC(adcZSThresh);  // no-zero suppression
+  TowerDigitizer->set_zero_suppression_ADC(-0);  // no-zero suppression
   se->registerSubsystem(TowerDigitizer);
 
   //Default sampling fraction for SS310
@@ -300,3 +298,4 @@ void HCALInner_Eval(const std::string &outputfile)
 
   return;
 }
+#endif

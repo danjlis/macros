@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MACRO_G4HCALOUTREF_C
+#define MACRO_G4HCALOUTREF_C
 
 #include "GlobalVariables.C"
 
@@ -61,12 +62,11 @@ void HCalOuterInit()
 
 double HCalOuter(PHG4Reco *g4Reco,
                  double radius,
-                 const int crossings,
-                 const int absorberactive = 0)
+                 const int crossings)
 {
-  bool AbsorberActive = Enable::ABSORBER || Enable::HCALOUT_ABSORBER || absorberactive;
+  bool AbsorberActive = Enable::ABSORBER || Enable::HCALOUT_ABSORBER;
   bool OverlapCheck = Enable::OVERLAPCHECK || Enable::HCALOUT_OVERLAPCHECK;
-  int verbosity = std::max(Enable::VERBOSITY,Enable::HCALOUT_VERBOSITY);
+  int verbosity = std::max(Enable::VERBOSITY, Enable::HCALOUT_VERBOSITY);
 
   PHG4OuterHcalSubsystem *hcal = new PHG4OuterHcalSubsystem("HCALOUT");
   // hcal->set_double_param("inner_radius", 183.3);
@@ -124,7 +124,7 @@ double HCalOuter(PHG4Reco *g4Reco,
 
 void HCALOuter_Cells()
 {
-  int verbosity = std::max(Enable::VERBOSITY,Enable::HCALOUT_VERBOSITY);
+  int verbosity = std::max(Enable::VERBOSITY, Enable::HCALOUT_VERBOSITY);
 
   Fun4AllServer *se = Fun4AllServer::instance();
 
@@ -144,9 +144,9 @@ void HCALOuter_Cells()
   return;
 }
 
-void HCALOuter_Towers(int adcZSThresh = -0)
+void HCALOuter_Towers()
 {
-  int verbosity = std::max(Enable::VERBOSITY,Enable::HCALOUT_VERBOSITY);
+  int verbosity = std::max(Enable::VERBOSITY, Enable::HCALOUT_VERBOSITY);
 
   Fun4AllServer *se = Fun4AllServer::instance();
 
@@ -165,7 +165,7 @@ void HCALOuter_Towers(int adcZSThresh = -0)
   TowerDigitizer->set_pedstal_width_ADC(1);  // From Jin's guess. No EMCal High Gain data yet! TODO: update
   TowerDigitizer->set_photonelec_ADC(16. / 5.);
   TowerDigitizer->set_photonelec_yield_visible_GeV(16. / 5 / (0.2e-3));
-  TowerDigitizer->set_zero_suppression_ADC(adcZSThresh);  // no-zero suppression
+  TowerDigitizer->set_zero_suppression_ADC(-0);  // no-zero suppression
   se->registerSubsystem(TowerDigitizer);
 
   const double visible_sample_fraction_HCALOUT = 3.38021e-02;  // /gpfs/mnt/gpfs04/sphenix/user/jinhuang/prod_analysis/hadron_shower_res_nightly/./G4Hits_sPHENIX_pi-_eta0_16GeV.root_qa.rootQA_Draw_HCALOUT_G4Hit.pdf
@@ -184,7 +184,7 @@ void HCALOuter_Towers(int adcZSThresh = -0)
 
 void HCALOuter_Clusters()
 {
-  int verbosity = std::max(Enable::VERBOSITY,Enable::HCALOUT_VERBOSITY);
+  int verbosity = std::max(Enable::VERBOSITY, Enable::HCALOUT_VERBOSITY);
 
   Fun4AllServer *se = Fun4AllServer::instance();
 
@@ -214,7 +214,7 @@ void HCALOuter_Clusters()
 
 void HCALOuter_Eval(const std::string &outputfile)
 {
-  int verbosity = std::max(Enable::VERBOSITY,Enable::HCALOUT_VERBOSITY);
+  int verbosity = std::max(Enable::VERBOSITY, Enable::HCALOUT_VERBOSITY);
 
   Fun4AllServer *se = Fun4AllServer::instance();
 
@@ -224,3 +224,4 @@ void HCALOuter_Eval(const std::string &outputfile)
 
   return;
 }
+#endif

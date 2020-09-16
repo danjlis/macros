@@ -19,6 +19,8 @@
 #include <calobase/RawTowerGeom.h>
 #include <calobase/RawCluster.h>
 #include <calobase/RawClusterContainer.h>
+#include <g4jets/Jet.h>
+#include <g4jets/JetMap.h>
 
 #include <g4main/PHG4Particle.h>
 #include <g4main/PHG4TruthInfoContainer.h>
@@ -36,6 +38,16 @@ int TreeMaker::Init(PHCompositeNode *topNode)
 
   _f->cd();
   m_config.Write("config", TObject::kOverwrite);
+
+  _doCaloJets = m_config.GetValue("DOCALOJETS", 0);
+  _caloJetsPtMin = m_config.GetValue("CALOJETSPTMIN", 10.0);
+  _caloJetsEtaLow = m_config.GetValue("CALOJETSETALOW", -1.1);
+  _caloJetsEtaHigh = m_config.GetValue("CALOJETSETAHIGH", 1.1);
+
+  _doPFJets = m_config.GetValue("DOPFJETS", 0);
+  _pfJetsPtMin = m_config.GetValue("PFJETSPTMIN", 10.0);
+  _pfJetsEtaLow = m_config.GetValue("PFJETSETALOW", -1.1);
+  _pfJetsEtaHigh = m_config.GetValue("PFJETSETAHIGH", 1.1);
 
   _tree = new TTree("aftburnTree","");
 
@@ -91,13 +103,26 @@ int TreeMaker::Init(PHCompositeNode *topNode)
   _tree->Branch("clusterT2_tower_eta", &_b_clusterT2_tower_eta);
   _tree->Branch("clusterT2_tower_layer", &_b_clusterT2_tower_layer);
 
-
   _tree->Branch("part_n",&_b_part_n, "part_n/I");
   _tree->Branch("part_pt",_b_part_pt, "part_pt[part_n]/F");
   _tree->Branch("part_eta",_b_part_eta, "part_eta[part_n]/F");
   _tree->Branch("part_phi",_b_part_phi, "part_phi[part_n]/F");
   _tree->Branch("part_m",_b_part_m, "part_m[part_n]/F");
   _tree->Branch("part_pdgid",_b_part_pdgid, "part_pdgid[part_n]/I");
+
+  if(_doCaloJets){
+    _tree->Branch("caloJet_n", &_b_caloJet_n, "caloJet_n/I");
+    _tree->Branch("caloJet_eta", _b_caloJet_eta, "caloJet_eta[caloJet_n]/F");
+    _tree->Branch("caloJet_phi", _b_caloJet_phi, "caloJet_phi[caloJet_n]/F");
+    _tree->Branch("caloJet_pt", _b_caloJet_pt, "caloJet_pt[caloJet_n]/F");
+  }
+
+  if(_doPFJets){
+    _tree->Branch("pfJet_n", &_b_pfJet_n, "pfJet_n/I");
+    _tree->Branch("pfJet_eta", _b_pfJet_eta, "pfJet_eta[pfJet_n]/F");
+    _tree->Branch("pfJet_phi", _b_pfJet_phi, "pfJet_phi[pfJet_n]/F");
+    _tree->Branch("pfJet_pt", _b_pfJet_pt, "pfJet_pt[pfJet_n]/F");
+  }
 
   return 0;
 }
@@ -213,6 +238,43 @@ int TreeMaker::process_event(PHCompositeNode *topNode)
 
     ++_b_part_n;
   }  
+
+  if(_doCaloJets){
+    _b_caloJet_n = 0;
+    JetMap* caloJets_p = findNode::getClass<JetMap>(topNode, "AntiKt_Tower_r04");
+
+    for(JetMap::Iter iter = caloJets_p->begin(); iter != caloJets_p->end(); ++iter){
+      Jet *jet = iter->second;
+      
+      if(jet->get_pt() < _caloJetsPtMin) continue;
+      if(jet->get_eta() < _caloJetsEtaLow) continue;
+      if(jet->get_eta() > _caloJetsEtaHigh) continue;
+      
+      _b_caloJet_pt[_b_caloJet_n] = jet->get_pt();
+      _b_caloJet_phi[_b_caloJet_n] = jet->get_phi();
+      _b_caloJet_eta[_b_caloJet_n] = jet->get_eta();
+      ++_b_caloJet_n;
+    }
+  }
+
+  if(_doPFJets){
+    _b_pfJet_n = 0;
+
+    JetMap* pfJets_p = findNode::getClass<JetMap>(topNode, "AntiKt_ParticleFlow_r04");
+
+    for(JetMap::Iter iter = pfJets_p->begin(); iter != pfJets_p->end(); ++iter){
+      Jet *jet = iter->second;
+
+      if(jet->get_pt() < _pfJetsPtMin) continue;
+      if(jet->get_eta() < _pfJetsEtaLow) continue;
+      if(jet->get_eta() > _pfJetsEtaHigh) continue;
+      
+      _b_pfJet_pt[_b_pfJet_n] = jet->get_pt();
+      _b_pfJet_phi[_b_pfJet_n] = jet->get_phi();
+      _b_pfJet_eta[_b_pfJet_n] = jet->get_eta();
+      ++_b_pfJet_n;
+    }
+  }
 
   _tree->Fill();
 

@@ -61,10 +61,21 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
   const int zsADCThreshCEMC = config_p->GetValue("ZSADCTHRESHCEMC", 16);
   const int zsADCThreshIHCal = config_p->GetValue("ZSADCTHRESHIHCAL", 0);
   const int zsADCThreshOHCal = config_p->GetValue("ZSADCTHRESHOHCAL", 0);
+
   const bool doGun = config_p->GetValue("DOGUN", 0);
   const double etaVal = config_p->GetValue("GUNETAVAL", 0.0);
   const double phiVal = config_p->GetValue("GUNPHIVAL", 0.0);
   std::string gunParticle = config_p->GetValue("GUNPARTICLE", "proton");
+
+  const bool doPYTHIA8 = config_p->GetValue("DOPYTHIA8", 0);
+  //  const double pythia8PthatMin = config_p->GetValue("PYTHIA8PTHATMIN", 15.0);
+
+  const bool doHEPMC = config_p->GetValue("DOHEPMC", 0);
+  const std::string hepMCName = config_p->GetValue("HEPMCNAME", "");
+
+
+  const bool doCaloJets = config_p->GetValue("DOCALOJETS", 0);
+  const bool doPFJets = config_p->GetValue("DOPFJETS", 0);
 
   //===============
   // Input options
@@ -80,10 +91,10 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
   const bool readhits = false;
   // Or:
   // read files in HepMC format (typically output from event generators like hijing or pythia)
-  const bool readhepmc = false;  // read HepMC files
+  const bool readhepmc = doHEPMC;  // read HepMC files
   // Or:
   // Use pythia
-  const bool runpythia8 = false;
+  const bool runpythia8 = doPYTHIA8;
   const bool runpythia6 = false;
   //
   // **** And ****
@@ -160,8 +171,8 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
 
   bool do_calotrigger = true && do_cemc_twr && do_hcalin_twr && do_hcalout_twr;
 
-  bool do_jet_reco = false;
-  bool do_jet_eval = do_jet_reco && true;
+  bool do_jet_reco = doCaloJets;
+  bool do_jet_eval = do_jet_reco && false;
 
   // HI Jet Reco for p+Au / Au+Au collisions (default is false for
   // single particle / p+p-only simulations, or for p+Au / Au+Au
@@ -171,7 +182,7 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
   // 3-D topoCluster reconstruction, potentially in all calorimeter layers
   bool do_topoCluster = true && do_cemc_twr && do_hcalin_twr && do_hcalout_twr;
   // particle flow jet reconstruction - needs topoClusters!
-  bool do_particle_flow = false && do_topoCluster;
+  bool do_particle_flow = doPFJets && do_topoCluster;
 
   bool do_dst_compress = false;
 
@@ -581,7 +592,7 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
 
     Fun4AllHepMCInputManager *in = new Fun4AllHepMCInputManager("HepMCInput_1");
     se->registerInputManager(in);
-    //    se->fileopen(in->Name().c_str(), inputFile);
+    se->fileopen(in->Name().c_str(), hepMCName.c_str());
     //in->set_vertex_distribution_width(100e-4,100e-4,30,0);//optional collision smear in space, time
     //in->set_vertex_distribution_mean(0,0,1,0);//optional collision central position shift in space, time
     // //optional choice of vertex distribution function in space, time

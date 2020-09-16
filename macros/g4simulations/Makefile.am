@@ -30,7 +30,8 @@ libTreeMaker_la_LIBADD = \
   -lSubsysReco \
   -lcalo_util \
   -lcalo_io \
-  -lphg4hit
+  -lphg4hit \
+  -lg4dst	
 
 BUILT_SOURCES = testexternals.cc
 

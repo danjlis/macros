@@ -46,6 +46,16 @@ class TreeMaker: public SubsysReco
 
   TTree *_tree;
 
+  bool _doCaloJets;
+  double _caloJetsPtMin;
+  double _caloJetsEtaLow;
+  double _caloJetsEtaHigh;
+
+  bool _doPFJets;
+  double _pfJetsPtMin;
+  double _pfJetsEtaLow;
+  double _pfJetsEtaHigh;
+
   std::string _foutname;
 
   float _b_truth_vx;
@@ -110,12 +120,22 @@ class TreeMaker: public SubsysReco
   float _b_clusterT2_phi[nClusters];
   float _b_clusterT2_E[nClusters];
 
-  //Towers w/in each cluster
+ //Towers w/in each cluster
   int _b_clusterT2_ntower[nClusters];
   std::vector< std::vector<float> > _b_clusterT2_tower_phi;
   std::vector< std::vector<float> > _b_clusterT2_tower_eta;
   std::vector< std::vector<int> > _b_clusterT2_tower_layer;
 
+  static const int nJets = 500;
+  int _b_caloJet_n;
+  float _b_caloJet_eta[nJets];
+  float _b_caloJet_phi[nJets];
+  float _b_caloJet_pt[nJets];
+
+  int _b_pfJet_n;
+  float _b_pfJet_eta[nJets];
+  float _b_pfJet_phi[nJets];
+  float _b_pfJet_pt[nJets];
 
   void processTowersSim(RawTowerContainer* towers, RawTowerGeomContainer* geom, int layer);
   void processTowersRaw(RawTowerContainer* towers, RawTowerGeomContainer* geom, int layer);

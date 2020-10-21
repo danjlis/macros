@@ -32,7 +32,7 @@ R__LOAD_LIBRARY(libfun4all.so)
 
 int Fun4All_G4_fsPHENIX(
     const int nEvents = 2,
-    const string &inputFile = "/sphenix/sim/sim01/production/2016-07-21/single_particle/spacal2d/fieldmap/G4Hits_sPHENIX_e-_eta0_8GeV-0002.root",
+    const string &inputFile = "https://www.phenix.bnl.gov/WWW/publish/phnxbld/sPHENIX/files/fsPHENIX_G4Hits_sHijing_9-11fm_00000_00010.root",
     const string &outputFile = "G4fsPHENIX.root",
     const string &embed_input_file = "https://www.phenix.bnl.gov/WWW/publish/phnxbld/sPHENIX/files/fsPHENIX_G4Hits_sHijing_9-11fm_00000_00010.root",
     const int skip = 0,
@@ -86,7 +86,7 @@ int Fun4All_G4_fsPHENIX(
   //  Input::GUN = true;
   //Input::GUN_VERBOSITY = 0;
 
-  Input::HEPMC = true;
+//  Input::HEPMC = true;
   INPUTHEPMC::filename = inputFile;
 
   // Event pile up simulation with collision rate in Hz MB collisions.
@@ -122,6 +122,7 @@ int Fun4All_G4_fsPHENIX(
     INPUTGENERATOR::SimpleEventGenerator->set_eta_range(-1, 3);
     INPUTGENERATOR::SimpleEventGenerator->set_phi_range(-M_PI, M_PI);
     INPUTGENERATOR::SimpleEventGenerator->set_pt_range(0.5, 50.);
+    INPUTGENERATOR::SimpleEventGenerator->Embed(2);
   }
   // Upsilons
   if (Input::UPSILON)

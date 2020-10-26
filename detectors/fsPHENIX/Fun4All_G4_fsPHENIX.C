@@ -13,6 +13,7 @@
 #include <G4_Input.C>
 #include <G4_Jets.C>
 #include <G4_Production.C>
+#include <G4_User.C>
 
 #include <fun4all/Fun4AllDstOutputManager.h>
 #include <fun4all/Fun4AllOutputManager.h>
@@ -131,7 +132,6 @@ int Fun4All_G4_fsPHENIX(
     INPUTGENERATOR::SimpleEventGenerator[0]->set_eta_range(-1, 3);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_phi_range(-M_PI, M_PI);
     INPUTGENERATOR::SimpleEventGenerator[0]->set_pt_range(0.5, 50.);
-    INPUTGENERATOR::SimpleEventGenerator[0]->Embed(2);
   }
   // Upsilons
   // if you run more than one of these Input::UPSILON_NUMBER > 1
@@ -168,7 +168,7 @@ int Fun4All_G4_fsPHENIX(
     //! positive ID is the embedded event of interest, e.g. jetty event from pythia
     //! negative IDs are backgrounds, .e.g out of time pile up collisions
     //! Usually, ID = 0 means the primary Au+Au collision background
-    //INPUTMANAGER::HepMCInputManager->set_embedding_id(2);
+    //INPUTMANAGER::HepMCInputManager->set_embedding_id(Input::EmbedID);
     if (Input::PILEUPRATE > 0)
     {
       // Copy vertex settings from foreground hepmc input
@@ -207,7 +207,8 @@ int Fun4All_G4_fsPHENIX(
   //  Enable::OVERLAPCHECK = true;
   //  Enable::VERBOSITY = 1;
 
-  Enable::BBC = true;
+  //  Enable::BBC = true;
+  Enable::BBCFAKE = true; // Smeared vtx and t0, use if you don't want real BBC in simulation
 
   Enable::PIPE = true;
   Enable::PIPE_ABSORBER = true;
@@ -298,6 +299,9 @@ int Fun4All_G4_fsPHENIX(
   //Enable::BLACKHOLE_SAVEHITS = false; // turn off saving of bh hits
   //  BlackHoleGeometry::visible = true;
 
+  // run user provided code (from local G4_User.C)
+  //Enable::USER = true;
+
   //---------------
   // World Settings
   //---------------
@@ -331,19 +335,11 @@ int Fun4All_G4_fsPHENIX(
     G4Setup();
   }
 
-  //---------
-  // BBC Reco, just smeared vertex
-  //---------
-
-  if (Enable::BBC)
-  {
-    BbcInit();
-    Bbc_Reco();
-  }
-
   //------------------
   // Detector Division
   //------------------
+
+  if (Enable::BBC || Enable::BBCFAKE) Bbc_Reco();
 
   if (Enable::MVTX_CELL) Mvtx_Cells();
   if (Enable::INTT_CELL) Intt_Cells();
@@ -467,6 +463,8 @@ int Fun4All_G4_fsPHENIX(
   if (Enable::FGEM_EVAL) FGEM_FastSim_Eval(outputroot + "g4tracking_fgem_eval.root");
 
   if (Enable::DSTREADER) G4DSTreader_fsPHENIX(outputroot + "_DSTReader.root");
+
+  if (Enable::USER) UserAnalysisInit();
 
   //--------------
   // Set up Input Managers

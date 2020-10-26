@@ -123,18 +123,16 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
   // What to run
   //======================
 
-  bool do_bbc = true;
-
   bool do_pipe = true;
   bool do_mvtxservice = true;
 
-  bool do_tracking = false;
-  bool do_tracking_cell = do_tracking && false;
-  bool do_tracking_cluster = do_tracking_cell && false;
-  bool do_tracking_track = do_tracking_cluster && false;
-  bool do_tracking_eval = do_tracking_track && false;
+  bool do_bbc = true;
 
-  bool do_pstof = false;
+  bool do_tracking = true;
+  bool do_tracking_cell = do_tracking && true;
+  bool do_tracking_cluster = do_tracking_cell && true;
+  bool do_tracking_track = do_tracking_cluster && true;
+  bool do_tracking_eval = do_tracking_track && true;
 
   bool do_cemc = true;
   bool do_cemc_cell = do_cemc && true;
@@ -203,7 +201,7 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
   gSystem->Load("libg4intt.so");
   // establish the geometry and reconstruction setup
   gROOT->LoadMacro("G4Setup_sPHENIX.C");
-  G4Init(do_tracking, do_pstof, do_cemc, do_hcalin, do_magnet, do_hcalout, do_pipe, do_plugdoor, do_femc, do_epd, do_mvtxservice);
+  G4Init(do_tracking, do_bbc, do_cemc, do_hcalin, do_magnet, do_hcalout, do_pipe, do_plugdoor, do_femc, do_epd, do_mvtxservice);
 
   int absorberactive = 1;  // set to 1 to make all absorbers active volumes
   //  const string magfield = "1.5"; // alternatively to specify a constant magnetic field, give a float number, which will be translated to solenoidal field in T, if string use as fieldmap name (including path)
@@ -423,10 +421,10 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,00,0)
     G4Setup(absorberactive, magfield, EDecayType::kAll,
-            do_tracking, do_pstof, do_cemc, do_hcalin, do_magnet, do_hcalout, do_pipe,do_plugdoor, do_femc, do_epd, do_mvtxservice, magfield_rescale);
+            do_tracking, do_bbc, do_cemc, do_hcalin, do_magnet, do_hcalout, do_pipe,do_plugdoor, do_femc, do_epd, do_mvtxservice, magfield_rescale);
 #else
     G4Setup(absorberactive, magfield, TPythia6Decayer::kAll,
-            do_tracking, do_pstof, do_cemc, do_hcalin, do_magnet, do_hcalout, do_pipe,do_plugdoor, do_femc, do_epd, do_mvtxservice, magfield_rescale);
+            do_tracking, do_bbc, do_cemc, do_hcalin, do_magnet, do_hcalout, do_pipe,do_plugdoor, do_femc, do_epd, do_mvtxservice, magfield_rescale);
 #endif
   }
 
@@ -500,7 +498,6 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
     gROOT->LoadMacro("G4_Global.C");
     Global_Reco();
   }
-
   else if (do_global_fastsim)
   {
     gROOT->LoadMacro("G4_Global.C");
@@ -622,6 +619,7 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
     pileup->set_vertex_distribution_mean(0, 0, 0, 0);
     pileup->set_vertex_distribution_width(100e-4, 100e-4, 30, 5);
     se->registerInputManager(pileup);
+
     const string pileupfile("/sphenix/sim/sim01/sHijing/sHijing_0-12fm.dat");
     //background files for p+p pileup sim
     //const string pileupfile("/gpfs/mnt/gpfs04/sphenix/user/shlim/04.InnerTrackerTaskForce/01.PythiaGen/list_pythia8_mb.dat");
@@ -655,7 +653,7 @@ int Fun4All_G4_sPHENIX(std::string inConfigFileName)
     G4DSTreader(outFileName.c_str(),  //
                 /*int*/ absorberactive,
                 /*bool*/ do_tracking,
-                /*bool*/ do_pstof,
+                /*bool*/ do_bbc,
                 /*bool*/ do_cemc,
                 /*bool*/ do_hcalin,
                 /*bool*/ do_magnet,

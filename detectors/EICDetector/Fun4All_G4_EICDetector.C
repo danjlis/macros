@@ -14,6 +14,7 @@
 #include <G4_Input.C>
 #include <G4_Jets.C>
 #include <G4_Production.C>
+#include <G4_User.C>
 
 #include <TROOT.h>
 #include <fun4all/Fun4AllDstOutputManager.h>
@@ -206,7 +207,8 @@ int Fun4All_G4_EICDetector(
   //  Enable::OVERLAPCHECK = true;
   //  Enable::VERBOSITY = 1;
 
-  Enable::BBC = true;
+  //  Enable::BBC = true;
+  Enable::BBCFAKE = true; // Smeared vtx and t0, use if you don't want real BBC in simulation
 
   // whether to simulate the Be section of the beam pipe
   Enable::PIPE = true;
@@ -308,6 +310,8 @@ int Fun4All_G4_EICDetector(
   //Enable::BLACKHOLE_SAVEHITS = false; // turn off saving of bh hits
   //BlackHoleGeometry::visible = true;
 
+  //Enable::USER = true;
+
   //---------------
   // World Settings
   //---------------
@@ -343,19 +347,11 @@ int Fun4All_G4_EICDetector(
     G4Setup();
   }
 
-  //---------
-  // BBC Reco
-  //---------
-
-  if (Enable::BBC)
-  {
-    BbcInit();
-    Bbc_Reco();
-  }
-
   //------------------
   // Detector Division
   //------------------
+
+  if (Enable::BBC || Enable::BBCFAKE) Bbc_Reco();
 
   if (Enable::CEMC_CELL) CEMC_Cells();
 
@@ -466,6 +462,8 @@ int Fun4All_G4_EICDetector(
   if (Enable::JETS_EVAL) Jet_Eval(outputroot + "_g4jet_eval.root");
 
   if (Enable::FWDJETS_EVAL) Jet_FwdEval(outputroot + "_g4fwdjet_eval.root");
+
+  if (Enable::USER) UserAnalysisInit();
 
   //--------------
   // Set up Input Managers

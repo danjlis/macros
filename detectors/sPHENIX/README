@@ -1,0 +1,18 @@
+Here is where I fo the simulation stuff...
+
+hcal_config holds information on geometry and the number of events, set to -1 to use the visualization.
+
+  root l Fun4All_G4_sPHENIX.C
+  .L DisplayOn.C
+  PHG4Reco *g4 = DisplayOn();
+  Fun4AllServer *se = Fun4AllServer::instance();	
+  se->run(#) // run a certain amount of runs
+  
+  change the vision like g4->ApplyCommand();
+
+  to see it all do g4->ApplyCommand("/vis/viewer/rebuild");
+   
+the outputs get put into the hcal_output directory
+If you are running the whole detector, run the trigger
+If its one sector, run the hcal_sim_data.C macro. use the simulated energy
+  

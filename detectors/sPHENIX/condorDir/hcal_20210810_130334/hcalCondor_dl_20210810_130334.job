@@ -1,0 +1,14 @@
+Universe	= vanilla
+Executable	= scriptForHCAL.sh
+Output          = hcal_$(Process).out
+Error           = hcal_$(Process).err
+Log             = hcal_$(Process).log
+Arguments       = "$(Process)"
+Initialdir      = /sphenix/user/dlis/Projects/HCALSims/macros/detectors/sPHENIX/condorDir/hcal_20210810_130334
+GetEnv 		= True
+
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+transfer_input_files = HCALCalibTree/HCALCalibTree_Dict_rdict.pcm, HCALCalibTree/libHCALCalibTree.so, hcal_condor.config, HCALCalibTree/HCALCalibTree.C, HCALCalibTree/HCALCalibTree.h, HCALCalibTree/HCALCalibTreeLinkDef.h, PHG4OuterHcalDetector.cc, PHG4OuterHcalDetector.h, PHG4OuterHcalDetector.lo, CosmicSpray.cc, CosmicSpray.h, CosmicSpray.lo, G4_HcalOut_ref.C, G4_Input.C, libg4testbench.so, HCALCalibTree/HCALCalibTree.lo, HCALCalibTree/libHCALCalibTree.la
+Queue 1
